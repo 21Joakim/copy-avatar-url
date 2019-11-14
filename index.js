@@ -28,7 +28,7 @@ module.exports = class CopyAvatarUrl extends Plugin {
     const _this = this;
 
     const UserContextMenu = await getModuleByDisplayName('UserContextMenu');
-    inject('jockie-copyAvatarUrl-user', UserContextMenu.prototype, 'render', function (args, res) { // eslint-disable-line func-names
+    inject('jockie-copyAvatarUrl-user', UserContextMenu.prototype, 'render', function (args, res) {
       const { children } = res.props.children.props.children.props;
 
       const developerGroupIndex = children.findIndex(item => item.type.displayName === 'DeveloperModeGroupa');
