@@ -31,7 +31,7 @@ module.exports = class CopyAvatarUrl extends Plugin {
     inject('jockie-copyAvatarUrl-user', UserContextMenu.prototype, 'render', function (args, res) {
       const { children } = res.props.children.props.children.props;
 
-      const developerGroupIndex = children.findIndex(item => item.type.displayName === 'DeveloperModeGroupa');
+      const developerGroupIndex = children.findIndex(item => item.type.displayName === 'DeveloperModeGroup');
 
       /* Backup in case it changes name */
       const foundComponent = developerGroupIndex !== -1;
