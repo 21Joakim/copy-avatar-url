@@ -1,9 +1,7 @@
 {
-  "name": "Copy Avatar Url",
-  "version": "0.0.1",
-  "description": "Add a \"Copy Avatar Url\" button to the user context menu",
-  "author": "Joakim#9814",
-  "license": "MIT",
-  "repo": "https://github.com/21Joakim/copy-avatar-url.git",
-  "dependencies": []
+  "name": "Copy Avatar URL",
+  "version": "0.0.2",
+  "description": "Add a \"Copy Avatar URL\" button to the user context menu",
+  "author": "Joakim#9814, M|-|4r13y ツ#1051",
+  "license": "MIT"
 }
