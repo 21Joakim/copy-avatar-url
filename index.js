@@ -1,52 +1,55 @@
 const { Plugin } = require('powercord/entities');
-const { getModuleByDisplayName, getModule, React } = require('powercord/webpack');
-const { ContextMenu: { Button } } = require('powercord/components');
+const { React, getModule } = require('powercord/webpack');
 const { inject, uninject } = require('powercord/injector');
+const { findInReactTree, getOwnerInstance } = require('powercord/util');
 
+const { ASSET_ENDPOINT } = window.GLOBAL_ENV;
 const { clipboard } = require('electron');
 
-module.exports = class CopyAvatarUrl extends Plugin {
-  async import (filter, name = filter, useModule = false) {
-    if (typeof filter === 'string') {
-      filter = [ filter ];
-    }
-
-    if (useModule) {
-      this[name] = await getModule(filter);
-    } else {
-      this[name] = (await getModule(filter))[name];
-    }
-  }
-
-  async doImport () {
-    await this.import('developerMode', 'settings', true);
-  }
-
+module.exports = class CopyAvatarURL extends Plugin {
   async startPlugin () {
-    await this.doImport();
+    const Menu = await getModule([ 'MenuItem' ]);
+    inject('jockie-copyAvatarURL-user', Menu, 'default', (args) => {
+      const [ { navId, children } ] = args;
+      if (navId !== 'user-context') {
+        return args;
+      }
 
-    const _this = this;
+      const hasAvatarUrlItem = findInReactTree(children, child => child.props && child.props.id === 'copy-avatar-url');
+      if (!hasAvatarUrlItem) {
+        let user;
 
-    const UserContextMenu = await getModuleByDisplayName('UserContextMenu');
-    inject('jockie-copyAvatarUrl-user', UserContextMenu.prototype, 'render', function (args, res) {
-      const { children } = res.props.children.props.children.props;
+        if (document.querySelector('#user-context')) {
+          const instance = getOwnerInstance(document.querySelector('#user-context'));
+          ({ user } = instance._reactInternalFiber.return.memoizedProps);
+        }
 
-      const developerGroupIndex = children.findIndex(item => item && item.type.displayName === 'DeveloperModeGroup');
+        const copyAvatarURLItem = React.createElement(Menu.MenuItem, {
+          id: 'copy-avatar-url',
+          label: 'Copy Avatar URL',
+          action: () => clipboard.writeText(`${!user.avatar ? ASSET_ENDPOINT : ''}${user.avatarURL}`)
+        });
 
-      /* Backup in case it changes name */
-      const foundComponent = developerGroupIndex !== -1;
+        const devmodeItem = findInReactTree(children, child => child.props && child.props.id === 'devmode-copy-id');
+        const developerGroup = children.find(child => child.props && child.props.children === devmodeItem);
+        if (developerGroup) {
+          if (!Array.isArray(developerGroup.props.children)) {
+            developerGroup.props.children = [ developerGroup.props.children ];
+          }
 
-      children.splice((foundComponent ? developerGroupIndex + 1 : children.length), 0, React.createElement(Button, {
-        name: 'Copy Avatar Url',
-        onClick: () => clipboard.writeText(this.props.user.avatarURL),
-        seperate: !foundComponent || !_this.settings.developerMode
-      }));
+          developerGroup.props.children.push(copyAvatarURLItem);
+        } else {
+          children.push([ React.createElement(Menu.MenuSeparator), React.createElement(Menu.MenuGroup, {}, copyAvatarURLItem) ]);
+        }
+      }
 
-      return res;
-    });
+      return args;
+    }, true);
+
+    Menu.default.displayName = 'Menu';
   }
 
   pluginWillUnload () {
-    uninject('jockie-copyAvatarUrl-user');
+    uninject('jockie-copyAvatarURL-user');
   }
 };
