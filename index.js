@@ -21,7 +21,11 @@ module.exports = class CopyAvatarURL extends Plugin {
 
         if (document.querySelector('#user-context')) {
           const instance = getOwnerInstance(document.querySelector('#user-context'));
-          ({ user } = instance._reactInternals.return.memoizedProps);
+          user = (instance?._reactInternals || instance?._reactInternalFiber)?.return?.memoizedProps?.user;
+        }
+
+        if (!user) {
+          return args;
         }
 
         const copyAvatarUrlItem = React.createElement(Menu.MenuItem, {
