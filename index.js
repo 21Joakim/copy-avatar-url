@@ -31,7 +31,7 @@ module.exports = class CopyAvatarURL extends Plugin {
         const copyAvatarUrlItem = React.createElement(Menu.MenuItem, {
           id: 'copy-avatar-url',
           label: 'Copy Avatar URL',
-          action: () => clipboard.writeText(`${!user.avatar ? ASSET_ENDPOINT : ''}${user.avatarURL}`)
+          action: () => clipboard.writeText(`${!user.avatar ? ASSET_ENDPOINT : ''}${user.getAvatarURL('gif')}`)
         });
 
         const devmodeItem = findInReactTree(children, child => child.props && child.props.id === 'devmode-copy-id');
